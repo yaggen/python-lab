@@ -20,6 +20,18 @@ def parseIP(conf):
 	return(ip_add)
 
 
+def parseIntf(conf):
+	parse = CiscoConfParse(conf)
+
+	intf_list = []
+
+	interfaces = parse.find_objects(r"^interf ")
+
+	for interface in interfaces:
+		intf_list.append(interface)
+
+	return(intf_list)
+
 def parseHost(conf):
 
 	host = []
@@ -32,7 +44,7 @@ def parseHost(conf):
 		hostname = hostname.replace(r'hostname\s', r'')
 		host.append(hostname)
 
-	return(hostname)
+	return(host)
 
 
 def generateHtml(conf):
@@ -62,23 +74,23 @@ def generateHtml(conf):
 	'''
 
 	soup = BeautifulSoup(html_template, 'html.parser')
+	
 	soup.find(id='namn').string = parseHost(conf)
-	soup.find(id='ip').string = parseIP(conf)
 
-	FILE = 'Lab_3_Infotabell.html'
+	ip = soup.select("#ip")
 
-	FILNAMN = 'infotabell.html'
+	FILNAMN = 'Lab_3_Infotabell.html'
 
 	out =  open(FILNAMN,'w')
 	out.write(soup.prettify())
 	out.close()
 
-	# Säg till systemets webbläsare att öppna filen
-	# Man måste ha en absolut sökväg till html-filen här
-
 	webbrowser.open('file:Users/yaggen/Desktop/python/hv-pyscheme/Lab/'+FILNAMN)
+    
 
 conf = "router_configuration.txt"
-generateHtml(conf)
+myIps = parseIP(conf)
+host = parseHost(conf)
+
 
 
