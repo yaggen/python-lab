@@ -83,11 +83,13 @@ def generateHtml(conf):
 	out.write(soup.prettify())
 	out.close()
 
+	ips = '<br>'.join(parseIP(conf))
+
 	with open(FILNAMN, 'r') as file :
 		filedata = file.read()
 
 	# Replace the target string
-	filedata = filedata.replace('allaipnummer', str(parseIP(conf)[0:3]))
+	filedata = filedata.replace('allaipnummer', ips)
 
 	# Write the file out again
 	with open(FILNAMN, 'w') as file:
