@@ -75,15 +75,25 @@ def generateHtml(conf):
 
 	soup = BeautifulSoup(html_template, 'html.parser')
 	
-	soup.find(id='namn').string = parseHost(conf)
-
-	ip = soup.select("#ip")
+	#soup.find(id='namn').string = parseHost(conf)
 
 	FILNAMN = 'Lab_3_Infotabell.html'
 
 	out =  open(FILNAMN,'w')
 	out.write(soup.prettify())
 	out.close()
+
+	with open(FILNAMN, 'r') as file :
+		filedata = file.read()
+
+	# Replace the target string
+	filedata = filedata.replace('allaipnummer', str(parseIP(conf)[0:3]))
+
+	# Write the file out again
+	with open(FILNAMN, 'w') as file:
+		file.write(filedata)
+
+
 
 	webbrowser.open('file:Users/yaggen/Desktop/python/hv-pyscheme/Lab/'+FILNAMN)
     
@@ -92,5 +102,5 @@ conf = "router_configuration.txt"
 myIps = parseIP(conf)
 host = parseHost(conf)
 
-
+generateHtml(conf)
 
