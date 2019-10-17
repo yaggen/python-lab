@@ -25,12 +25,29 @@ def parseIntf(conf):
 
 	intf_list = []
 
-	interfaces = parse.find_objects(r"^interf ")
+	interfaces = parse.find_objects(r"^interface ")
 
 	for interface in interfaces:
-		intf_list.append(interface)
+		intf_list.append(interface.text)
+		if interface in parse.find_objects_w_child('^interface', '^\s+no ip address'):
+			intf_list.remove(interface.text)
+
 
 	return(intf_list)
+
+def parseConf(conf):
+
+	f = open(conf,'r')
+	for line in f:
+		if "Last configuration" in line:
+			last_change = line
+        
+	conf_change = last_change[31:58]
+
+
+	return(conf_change)
+
+
 
 def parseHost(conf):
 
@@ -46,8 +63,20 @@ def parseHost(conf):
 
 	return(host)
 
+def parseVersion(version):
 
-def generateHtml(conf):
+	f = open(version,'r')
+	for line in f:
+		if "uptime" in line:
+			uptime = line
+		if "ROM:" in line:
+			rom = line
+
+	rom_ver = rom[23:]
+	uptime = uptime[15:]
+	return rom_ver,uptime
+
+def generateHtml(conf, ver):
 	
 	html_template = '''
 	<html>
@@ -63,12 +92,19 @@ def generateHtml(conf):
 	<h1>Routerinformation</h1>
 	<table>
  	<tr>
-  	<td>Namn</td><td id="namn">xxx</td>
+  	<td>Namn & Last Change</td><td id="namn">xxx</td><td>LastChange</td>
  	</tr>
  	<tr>
-  	<td>IP-nummer</td><td id="ip">allaipnummer</td>
+  	<td>Interface & IP-nummer</td><td id="interface">interface</td> <td id ="ip">allaipnummer</td>
  	</tr>
 	</table>
+	<table>
+	<tr>
+	<td>Rom version:</td><td id="ROM">ROM_VER</td></tr>
+	<br>
+	<tr>
+	<td>Uptime:</td><td id="Uptime">UPTIME</td>
+	</tr>
 	</body>
 	</html>
 	'''
@@ -83,13 +119,22 @@ def generateHtml(conf):
 	out.write(soup.prettify())
 	out.close()
 
+	host = parseHost(conf)[0]
 	ips = '<br>'.join(parseIP(conf))
+	intf = '<br>'.join(parseIntf(conf))
+	lastChange = parseConf(conf)
+	rom_ver, uptime = parseVersion(ver)
 
 	with open(FILNAMN, 'r') as file :
 		filedata = file.read()
 
 	# Replace the target string
-	filedata = filedata.replace('allaipnummer', ips)
+	filedata = filedata.replace('allaipnummer',ips)
+	filedata = filedata.replace('interface', intf)
+	filedata = filedata.replace('LastChange',lastChange)
+	filedata = filedata.replace('ROM_VER',rom_ver)
+	filedata = filedata.replace('UPTIME',uptime)
+	filedata = filedata.replace('xxx', host)
 
 	# Write the file out again
 	with open(FILNAMN, 'w') as file:
@@ -101,8 +146,5 @@ def generateHtml(conf):
     
 
 conf = "router_configuration.txt"
-myIps = parseIP(conf)
-host = parseHost(conf)
-
-generateHtml(conf)
-
+version = "router_show_version.txt"
+generateHtml(conf,version)
