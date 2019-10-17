@@ -50,8 +50,7 @@ def printRecipe():
 # Simpel meny som ger tre alternativ och ett fjärde att avsluta programmet, variabeln choice bestäms alltid
 # av användaren men "får" bara innehålla 1,2,3 eller 0.
 def menu():	
-	print('\n')
-	print('\n')
+	print('\n' * 2)
 	print("#################### H U V U D M E N Y ######################")
 	print("#   Välj en siffra mellan 1-4 beroende på vad du vill göra: #")
 	print("# 1. Hälsa                                                  #")
@@ -59,8 +58,7 @@ def menu():
 	print("# 3. Ställa en sjukdomsdiagnos                              #")
 	print("# 0. Avsluta programmet                                     #")
 	print("#################### H U V U D M E N Y ######################")
-	print('\n')
-	print('\n')
+	print('\n' * 2)
 
 
 	choice = int(input("Välj ett alternativ (1-3):"))
